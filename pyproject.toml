@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "omnes-pro-uno"
+version = "0.1.0"
+description = "Unofficial implementation of Omnes pro uno: Practical multi-writer encrypted database"
+license = "Apache-2.0"
+authors = ["myl7 <myl@myl.moe>"]
+readme = "README.md"
+homepage = "https://github.com/myl7/omnes-pro-uno"
+repository = "https://github.com/myl7/omnes-pro-uno.git"
+documentation = "https://github.com/myl7/omnes-pro-uno#readme"
+keywords = ["sse", "multi-writer", "encrypted-database", "crypto"]
+classifiers = ["Topic :: Security :: Cryptography"]
+
+[tool.poetry.dependencies]
+python = "~3.10.13" # For Charm-Crypto
+pynacl = "^1.5.0"
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.4"
+flake8 = "^6.1.0"
+Charm-Crypto = "^0.50"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
