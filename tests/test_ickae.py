@@ -15,7 +15,7 @@ class TestIckae(unittest.TestCase):
         msk = ickae.keygen()
         s = [0, 2, self.N - 1]
         i = s[1]
-        ak = ickae.ext(msk, s, self.ID)
+        ak = ickae.extract(msk, s, self.ID)
         c = ickae.enc(i, self.ID, self.M)
         m = ickae.dec(ak, s, i, c)
         self.assertEqual(m, self.M)

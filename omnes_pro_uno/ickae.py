@@ -63,7 +63,7 @@ class Ickae:
         self.pk = pk
         return msk
 
-    def ext(self, msk: Msk, s, id: bytes):
+    def extract(self, msk: Msk, s, id: bytes):
         b = prf(id, b'b')[0] & 0b1
         hb = self.group.hash(id + bytes([b]), G1)
         k = prod([self.alpha_g1s[self.n - 1 - j] for j in s]) ** msk.gamma * hb ** msk.delta
