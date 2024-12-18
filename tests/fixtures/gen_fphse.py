@@ -13,10 +13,7 @@ def randstr(size):
     return b64encode(bs).decode()
 
 
-dbs = [
-    {randstr(KEY_LEN): randstr(VAL_LEN) for _ in range(KV_PAIR_NUM)}
-    for _ in range(DATA_OWNER_NUM)
-]
+dbs = [{randstr(KEY_LEN): randstr(VAL_LEN) for _ in range(KV_PAIR_NUM)} for _ in range(DATA_OWNER_NUM)]
 
 with open("tests/fixtures/fphse.json", "w") as f:
     json.dump(dbs, f)

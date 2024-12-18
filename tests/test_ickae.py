@@ -6,8 +6,8 @@ from omnes_pro_uno.ickae import Ickae
 class TestIckae(unittest.TestCase):
     def setUp(self):
         self.N = 5
-        self.ID = b'id'
-        self.M = b'msg'
+        self.ID = b"id"
+        self.M = b"msg"
 
     def test_ok(self):
         ickae = Ickae(self.N)
@@ -21,5 +21,5 @@ class TestIckae(unittest.TestCase):
         self.assertEqual(m, self.M)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,6 @@ class TestEdsse(unittest.TestCase):
         pass  # TODO
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # unittest.main()
     pass

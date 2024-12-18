@@ -4,18 +4,17 @@ from base64 import b64decode
 
 from omnes_pro_uno.fphse import Fphse
 
-OP_ADD = b'\x01'
+OP_ADD = b"\x01"
 F_BYTES = 15
 
 
 class TestFphse(unittest.TestCase):
     def setUp(self):
         self.N = 5
-        with open('tests/fixtures/fphse.json') as f:
+        with open("tests/fixtures/fphse.json") as f:
             dbs = json.load(f)
         self.DBS = [
-            {b64decode(k): b64decode(v) + b'\0' * (F_BYTES - len(b64decode(v))) for k, v in db.items()}
-            for db in dbs
+            {b64decode(k): b64decode(v) + b"\0" * (F_BYTES - len(b64decode(v))) for k, v in db.items()} for db in dbs
         ]
 
     def test_ok(self):
@@ -57,5 +56,5 @@ class TestFphse(unittest.TestCase):
             self.assertEqual(r[0], v)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
