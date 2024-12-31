@@ -29,15 +29,15 @@ class Pk:
 @dataclass
 class Ak:
     k: int
-    b: int
+    b: bytes
 
 
 @dataclass
 class C:
     c1: int
     c2: int
-    c30: (bytes, bytes)
-    c31: (bytes, bytes)
+    c30: bytes
+    c31: bytes
 
 
 class Ickae:
@@ -68,8 +68,9 @@ class Ickae:
         return msk
 
     def extract(self, msk: Msk, s, id: bytes):
-        b = prf(id, b"b")[0] & 0b1
-        hb = self.group.hash(id + bytes([b]), G1)
+        b = extract_key(self.group.random())[0] & 1
+        b_bytes = b.to_bytes(1, "little")
+        hb = self.group.hash(prf(id, b_bytes), G1)
         k = prod([self.alpha_g1s[self.n - 1 - j] for j in s]) ** msk.gamma * hb**msk.delta
         ak = Ak(k, b)
         return ak
@@ -78,8 +79,8 @@ class Ickae:
         r = self.group.random()
         c1 = self.g2**r
         c2 = (self.pk.gamma_g2 * self.alpha_g2s[i]) ** r
-        h0 = self.group.hash(id + bytes([0]), G1)
-        h1 = self.group.hash(id + bytes([1]), G1)
+        h0 = self.group.hash(prf(id, b"\0"), G1)
+        h1 = self.group.hash(prf(id, b"\1"), G1)
         c30 = enc_f(extract_key(self.alpha_gt**r / e(h0, self.pk.delta_g2) ** r), m)
         c31 = enc_f(extract_key(self.alpha_gt**r / e(h1, self.pk.delta_g2) ** r), m)
         c = C(c1, c2, c30, c31)
@@ -90,4 +91,4 @@ class Ickae:
             (ak.k * prod([self.alpha_g1s[self.n + i - j] for j in s if j != i])), c.c1
         )
         c3b = c.c30 if ak.b == 0 else c.c31
-        return dec_f(extract_key(u), c3b[0], c3b[1])
+        return dec_f(extract_key(u), c3b)

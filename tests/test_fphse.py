@@ -5,7 +5,7 @@ from base64 import b64decode
 from omnes_pro_uno.fphse import Fphse
 
 OP_ADD = b"\x01"
-F_BYTES = 15
+F_BYTES = 15 + 32
 
 
 class TestFphse(unittest.TestCase):
@@ -25,23 +25,29 @@ class TestFphse(unittest.TestCase):
         e_tkn_vec = []
         st_vec = []
         enb_vec = []
+        b_vec = []
         for i in range(self.N):
+            b_vec.append({})
             wk, st, enb = fphse.wsetup()
-            e_tkn, st = fphse.rebuild(i, wk, st)
+            e_tkn, st = fphse.rebuild(i, wk, b_vec[i], st)
             wk_vec.append(wk)
             e_tkn_vec.append(e_tkn)
             st_vec.append(st)
             enb_vec.append(enb)
 
+        fphse.edsse.set_epoch(fphse.edsse.get_epoch() + 1)
+        for i in range(self.N):
+            e_tkn_vec[i], st_vec[i] = fphse.rebuild(i, wk_vec[i], b_vec[i], st_vec[i])
+
         for i in range(self.N):
             dbs = self.DBS[i]
             for k, v in dbs.items():
-                u_no_sse, st_vec[i] = fphse.update_token(i, wk_vec[i], st_vec[i], OP_ADD, k, v)
+                u_no_sse, st_vec[i] = fphse.update_token(i, b_vec[i], wk_vec[i], st_vec[i], OP_ADD, k, v)
                 enb_vec[i], e_tkn_vec[i] = fphse.update(u_no_sse, enb_vec[i], e_tkn_vec[i])
 
-        # fphse.edsse.set_epoch(fphse.edsse.get_epoch() + 1)
-        # for i in range(self.N):
-        #     e_tkn_vec[i], st_vec[i] = fphse.rebuild(i, wk_vec[i], st_vec[i])
+        fphse.edsse.set_epoch(fphse.edsse.get_epoch() + 1)
+        for i in range(self.N):
+            e_tkn_vec[i], st_vec[i] = fphse.rebuild(i, wk_vec[i], b_vec[i], st_vec[i])
 
         s = [0, 1, self.N - 1]
 

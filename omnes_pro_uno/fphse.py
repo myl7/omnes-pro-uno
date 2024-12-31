@@ -27,25 +27,24 @@ class Fphse:
         k, st, enb = self.edsse.setup()
         return k, st, enb
 
-    def rebuild(self, i, k, st: St):
+    def rebuild(self, i, k, b, st: St):
         e = self.edsse.get_epoch()
         e_tkn = []
-        for w in st.t_ct.keys():
-            if self.st_to_b_w(st, w) != 1:
+        for w in b.keys():
+            if not b.get(w, False):
                 continue
             s = self.edsse.search_token(st, k, w)
             c = self.ickae.enc(i, w + ser_int(e), s.ser())
             e_tkn.append(c)
         return e_tkn, st
 
-    def update_token(self, i, k, st, op, w, f):
+    def update_token(self, i, b, k, st, op, w, f):
         e = self.edsse.get_epoch()
-        b_w = self.st_to_b_w(st, w)
         u, st_prime = self.edsse.update_token(st, k, op, w, f)
-        if b_w == 0:
+        if not b.get(w, False):
             s = self.edsse.search_token(st_prime, k, w)
             c = self.ickae.enc(i, w + ser_int(e), s.ser())
-            # b_w = 1
+            b[w] = True
         else:
             c = None
         u_no_sse = UNoSse(i, c, u)
@@ -75,11 +74,3 @@ class Fphse:
                     r, enb_vec[i] = self.edsse.search(s, enb_vec[i])
                     r_vec.extend(r)
         return r_vec, enb_vec, e_tkn_vec
-
-    def st_to_b_w(self, st: St, w):
-        if st.t_ct.get(w, None) is None:
-            return 0
-        elif st.t_ct[w] == 0:
-            return 0
-        else:
-            return 1

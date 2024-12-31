@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import random
 
-from omnes_pro_uno.utils import prf as _prf
+from omnes_pro_uno.utils import prf as _prf, xor
 
 
 def prf(key, data, lambda_bytes):
@@ -11,10 +11,6 @@ def prf(key, data, lambda_bytes):
 
 def ser_int(x: int):
     return x.to_bytes(8, "little")
-
-
-def xor(a, b):
-    return bytes([x ^ y for x, y in zip(a, b)])
 
 
 @dataclass
@@ -59,7 +55,9 @@ class U:
 
 
 class Edsse:
-    def __init__(self, lambda_bytes=16, op_bytes=1, f_bytes=15, h1_seed=b"h1_seed", h2_seed=b"h2_seed", op_add=b"\x01"):
+    def __init__(
+        self, lambda_bytes=16, op_bytes=1, f_bytes=15 + 32, h1_seed=b"h1_seed", h2_seed=b"h2_seed", op_add=b"\x01"
+    ):
         self.lambda_bytes = lambda_bytes
         self.epoch = 0
         self.op_bytes = op_bytes
@@ -71,11 +69,13 @@ class Edsse:
         self.h1 = h1
 
         def h2(x):
-            return prf(h2_seed, x, lambda_bytes)
+            y0 = _prf(h2_seed, x)
+            y1 = _prf(h2_seed + b"\1", x)
+            return y0 + y1
 
         self.h2 = h2
         """32 bytes is the output length of HMAC-SHA256"""
-        assert op_bytes + f_bytes + lambda_bytes == 32
+        assert (op_bytes + f_bytes + lambda_bytes) % 32 == 0
         assert len(op_add) == op_bytes
         self.OP_ADD = op_add
 
@@ -101,8 +101,8 @@ class Edsse:
         if ep != self.epoch and ep is not None:
             x = prf(k, w + ser_int(ep), self.lambda_bytes)
             y = b"\0" * (self.op_bytes + self.f_bytes)
-            addr = self.h1(se + bytes([1]))
-            val = xor(y + x, self.h2(se + bytes([1])))
+            addr = self.h1(se + ser_int(1))
+            val = xor(y + x, self.h2(se + ser_int(1)))
         s = S(se, addr, val)
         return s
 
