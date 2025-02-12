@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 from nacl.exceptions import CryptoError
 
@@ -64,6 +65,7 @@ class Fphse:
     def search(self, s_no_sse, s_perm, enb_vec, e_tkn_vec):
         r_vec = []
         for i in s_perm:
+            t = time.time()
             for c in e_tkn_vec[i]:
                 try:
                     s_bs = self.ickae.dec(s_no_sse, s_perm, i, c)
@@ -73,4 +75,5 @@ class Fphse:
                 if s is not None:
                     r, enb_vec[i] = self.edsse.search(s, enb_vec[i])
                     r_vec.extend(r)
+            print(f"Writer {i} time (s): {time.time() - t}")
         return r_vec, enb_vec, e_tkn_vec

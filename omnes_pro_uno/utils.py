@@ -1,7 +1,7 @@
 from hashlib import sha256
 import hmac
 
-from nacl.utils import randombytes_deterministic
+from nacl.secret import SecretBox
 
 
 def prf(key, data):
@@ -9,16 +9,18 @@ def prf(key, data):
     return hmac.new(key, data, sha256).digest()
 
 
-def enc(key, data):
-    return xor(data, G(key, len(data)))
+def enc(key: bytes, data: bytes) -> tuple[bytes, bytes]:
+    """
+    XSalsa20-Poly1305.
+    Returns `(nonce, ciphertext)`.
+    """
+    msg = SecretBox(key).encrypt(data)
+    return (msg.nonce, msg.ciphertext)
 
 
-def dec(key, data):
-    return xor(data, G(key, len(data)))
-
-
-def G(seed: bytes, out_len: int) -> bytes:
-    return randombytes_deterministic(out_len, sha256(seed).digest())
+def dec(key: bytes, nonce: bytes, data: bytes) -> bytes:
+    """XSalsa20-Poly1305"""
+    return SecretBox(key).decrypt(data, nonce)
 
 
 def xor(a, b):

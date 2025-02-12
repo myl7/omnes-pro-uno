@@ -1,3 +1,4 @@
+import time
 from functools import reduce
 from dataclasses import dataclass
 
@@ -87,8 +88,9 @@ class Ickae:
         return c
 
     def dec(self, ak: Ak, s, i, c: C):
-        u = prod([e(self.alpha_g1s[self.n - 1 - j], c.c2) for j in s]) / e(
+        u = e(prod([self.alpha_g1s[self.n - 1 - j] for j in s]), c.c2) / e(
             (ak.k * prod([self.alpha_g1s[self.n + i - j] for j in s if j != i])), c.c1
         )
         c3b = c.c30 if ak.b == 0 else c.c31
-        return dec_f(extract_key(u), c3b)
+        res = dec_f(extract_key(u), *c3b)
+        return res
